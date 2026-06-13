@@ -48,8 +48,8 @@ export function BracketView({
               className={cn(
                 'grid gap-2',
                 nonBye.length <= 2
-                  ? 'grid-cols-1 sm:grid-cols-2'
-                  : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'
+                  ? 'grid-cols-2'
+                  : 'grid-cols-2 lg:grid-cols-4'
               )}
             >
               {nonBye.map((match) => (
