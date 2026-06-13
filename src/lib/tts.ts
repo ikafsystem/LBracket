@@ -41,8 +41,11 @@ function speakViaSpeechSynthesis(text: string): Promise<void> {
     u.pitch = 1.05;
     u.volume = 1;
     const voices = window.speechSynthesis.getVoices();
-    const idVoice = voices.find((v) => v.lang.startsWith('id'));
-    if (idVoice) u.voice = idVoice;
+    const idVoices = voices.filter((v) => v.lang.startsWith('id'));
+    const idFemale = idVoices.find(
+      (v) => /female|sari|ayu|google/i.test(v.name)
+    );
+    if (idFemale) u.voice = idFemale;
     u.onend = () => resolve();
     window.speechSynthesis.speak(u);
   });
