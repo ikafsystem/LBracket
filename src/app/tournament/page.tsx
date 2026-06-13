@@ -135,7 +135,7 @@ function TournamentPage() {
           </button>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <h1 className="text-lg font-bold truncate">
+              <h1 className="text-lg font-bold truncate text-white">
                 {tournament.name}
               </h1>
               <Badge
@@ -276,8 +276,6 @@ function TournamentPage() {
             <img src="/logo.png" alt="" className="h-3 w-3" />
             <span className="font-semibold text-slate-400">L-BRACKET</span>
           </div>
-          <span className="text-slate-600">|</span>
-          <span>Lose Once. Fight Again.</span>
           <span className="text-slate-600">|</span>
           <span>Crafted with ❤️ by Ikaf Ramadhan</span>
         </div>
