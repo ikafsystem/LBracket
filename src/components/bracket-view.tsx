@@ -9,14 +9,12 @@ interface BracketViewProps {
   tournament: Tournament;
   onCompleteMatch: (matchId: string, winnerId: string) => void;
   bracket: 'winners' | 'losers';
-  title: string;
 }
 
 export function BracketView({
   tournament,
   onCompleteMatch,
   bracket,
-  title,
 }: BracketViewProps) {
   const rounds = getRounds(tournament.matches, bracket);
 
@@ -28,9 +26,6 @@ export function BracketView({
 
   return (
     <div className="space-y-4">
-      <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">
-        {title}
-      </h3>
       {rounds.map((round, roundIdx) => {
         const roundMatches = matchesForBracket.filter(
           (m) => m.round === round

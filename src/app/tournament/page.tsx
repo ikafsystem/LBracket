@@ -5,6 +5,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getTournament, saveTournament } from '@/lib/db';
 import { completeMatch } from '@/lib/engine';
+import { speakLoser, speakLosersComplete } from '@/lib/tts';
 import { BracketView } from '@/components/bracket-view';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -58,9 +59,25 @@ function TournamentPage() {
   const handleCompleteMatch = useCallback(
     async (matchId: string, winnerId: string) => {
       if (!tournament) return;
+      const match = tournament.matches.find((m) => m.id === matchId);
+      if (!match) return;
+      const loserId =
+        match.participant1Id === winnerId
+          ? match.participant2Id
+          : match.participant1Id;
+      if (loserId) {
+        const loser = tournament.participants.find((p) => p.id === loserId);
+        if (loser) void speakLoser(loser.name, loser.losses);
+      }
       const updated = completeMatch(tournament, matchId, winnerId);
       setTournament(updated);
       await saveTournament(updated);
+      if (updated.status === 'completed' && updated.loserIds) {
+        const names = updated.loserIds
+          .map((id) => updated.participants.find((p) => p.id === id)?.name)
+          .filter((n): n is string => !!n);
+        if (names.length > 0) void speakLosersComplete(names);
+      }
     },
     [tournament]
   );
@@ -230,9 +247,6 @@ function TournamentPage() {
           tournament={tournament}
           onCompleteMatch={handleCompleteMatch}
           bracket={activeTab}
-          title={
-            activeTab === 'winners' ? 'Winners Bracket' : 'Losers Bracket'
-          }
         />
       </div>
 
