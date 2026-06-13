@@ -76,8 +76,8 @@ function StandingsPage() {
     <div className="pb-24">
       <div className="p-4 border-b border-slate-800">
         <div className="flex items-center gap-3">
-          <button onClick={() => router.back()} className="p-2 -ml-2 rounded-lg hover:bg-slate-800 transition-colors">
-            <ArrowLeft className="h-5 w-5" />
+          <button onClick={() => router.back()} className="p-2 -ml-2 rounded-lg hover:bg-[#2557D6]/20 transition-colors">
+            <ArrowLeft className="h-5 w-5 text-white" />
           </button>
           <div>
             <h1 className="text-lg font-bold">Standings</h1>

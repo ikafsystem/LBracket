@@ -2,18 +2,17 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { getAllTournaments } from '@/lib/db';
 import { TournamentCard } from '@/components/tournament-card';
 import { StatsCard } from '@/components/stats-card';
-import { Button } from '@/components/ui/button';
 import {
   Trophy,
   Users,
   Swords,
   Skull,
+  Shuffle,
   Plus,
-  Download,
-  Upload,
 } from 'lucide-react';
 import type { Tournament, TournamentSummary } from '@/types';
 
@@ -73,11 +72,17 @@ export default function Dashboard() {
   return (
     <div className="p-4 pb-24 space-y-6">
       <div className="pt-4 pb-2 flex items-center gap-3">
-        <Trophy className="h-7 w-7 text-blue-400" />
+        <Image
+          src="/logo.png"
+          alt="L-Bracket logo"
+          width={70}
+          height={70}
+          className="h-[70px] w-[70px]"
+        />
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white">L-Bracket</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-white">L-BRACKET</h1>
           <p className="text-sm text-slate-400 mt-0.5">
-            Double-elimination tournament manager
+            WHOS GONNA BE LOSER FROM THE LOSERS.
           </p>
         </div>
       </div>
@@ -109,23 +114,21 @@ export default function Dashboard() {
         />
       </div>
 
-      <div className="flex gap-2">
-        <Button
+      <div className="grid grid-cols-2 gap-3">
+        <button
           onClick={() => router.push('/create')}
-          className="flex-1"
-          size="lg"
+          className="text-white bg-[#2557D6] hover:bg-[#2557D6]/90 focus:ring-4 focus:ring-[#2557D6]/50 focus:outline-none font-medium rounded-lg text-sm px-5 py-3 text-center inline-flex items-center justify-center gap-2 transition-all active:scale-[0.97]"
         >
           <Plus className="h-5 w-5" />
-          New Tournament
-        </Button>
-        <Button
-          variant="outline"
-          size="lg"
-          onClick={() => router.push('/import')}
-          className="bg-white/10 text-white border-slate-600 hover:bg-white/20"
+          Create Tournament
+        </button>
+        <button
+          onClick={() => router.push('/club-generator')}
+          className="text-white bg-[#2557D6] hover:bg-[#2557D6]/90 focus:ring-4 focus:ring-[#2557D6]/50 focus:outline-none font-medium rounded-lg text-sm px-5 py-3 text-center inline-flex items-center justify-center gap-2 transition-all active:scale-[0.97]"
         >
-          <Upload className="h-5 w-5" />
-        </Button>
+          <Shuffle className="h-5 w-5" />
+          Club Generator
+        </button>
       </div>
 
       {loading ? (
@@ -159,35 +162,6 @@ export default function Dashboard() {
           ))}
         </div>
       )}
-
-      <div className="fixed bottom-0 left-0 right-0 max-w-lg mx-auto bg-slate-900 border-t border-slate-800 px-4 py-3">
-        <div className="flex items-center justify-center gap-6 text-xs text-slate-500">
-          <span className="flex items-center gap-1">
-            <Trophy className="h-3.5 w-3.5" />
-            L-Bracket
-          </span>
-          <span className="text-slate-700">|</span>
-          <button
-            className="hover:text-slate-300 transition-colors flex items-center gap-1"
-            onClick={async () => {
-              const all = await getAllTournaments();
-              const blob = new Blob(
-                [JSON.stringify(all, null, 2)],
-                { type: 'application/json' }
-              );
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url;
-              a.download = 'lbracket-export.json';
-              a.click();
-              URL.revokeObjectURL(url);
-            }}
-          >
-            <Download className="h-3.5 w-3.5" />
-            Export All
-          </button>
-        </div>
-      </div>
     </div>
   );
 }

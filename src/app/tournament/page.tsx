@@ -17,7 +17,6 @@ import {
   Swords,
   Skull,
   ListOrdered,
-  GitBranch,
 } from 'lucide-react';
 import type { Tournament } from '@/types';
 
@@ -125,14 +124,14 @@ function TournamentPage() {
   ).length;
 
   return (
-    <div className="pb-24">
+    <>    <div className="pb-36">
       <div className="p-4 border-b border-slate-800">
         <div className="flex items-center gap-3 mb-3">
           <button
             onClick={() => router.push('/')}
-            className="p-2 -ml-2 rounded-lg hover:bg-slate-800 transition-colors"
+            className="p-2 -ml-2 rounded-lg hover:bg-[#2557D6]/20 transition-colors"
           >
-            <ArrowLeft className="h-5 w-5" />
+            <ArrowLeft className="h-5 w-5 text-white" />
           </button>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
@@ -249,14 +248,15 @@ function TournamentPage() {
           bracket={activeTab}
         />
       </div>
+    </div>
 
-      <div className="fixed bottom-0 left-0 right-0 max-w-lg mx-auto bg-slate-900 border-t border-slate-800">
+    <div className="fixed bottom-0 left-0 right-0 max-w-lg mx-auto bg-slate-900 border-t border-slate-800">
         <div className="flex">
           <button
             onClick={() =>
               router.push(`/standings?id=${tournament.id}`)
             }
-            className="flex-1 flex items-center justify-center gap-1.5 py-3 text-xs text-slate-400 hover:text-white transition-colors"
+            className="flex-1 flex items-center justify-center gap-1.5 py-3 text-xs text-white transition-colors"
           >
             <ListOrdered className="h-4 w-4" />
             Standings
@@ -265,33 +265,23 @@ function TournamentPage() {
             onClick={() =>
               router.push(`/eliminated?id=${tournament.id}`)
             }
-            className="flex-1 flex items-center justify-center gap-1.5 py-3 text-xs text-slate-400 hover:text-white transition-colors"
+            className="flex-1 flex items-center justify-center gap-1.5 py-3 text-xs text-white transition-colors"
           >
             <Skull className="h-4 w-4" />
             Eliminated
           </button>
-          <button
-            onClick={async () => {
-              const blob = new Blob(
-                [JSON.stringify(tournament, null, 2)],
-                { type: 'application/json' }
-              );
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url;
-              a.download = `${tournament.name
-                .replace(/\s+/g, '-')
-                .toLowerCase()}.json`;
-              a.click();
-              URL.revokeObjectURL(url);
-            }}
-            className="flex-1 flex items-center justify-center gap-1.5 py-3 text-xs text-slate-400 hover:text-white transition-colors"
-          >
-            <GitBranch className="h-4 w-4" />
-            Export
-          </button>
+        </div>
+        <div className="flex items-center justify-center gap-1.5 px-4 py-2 border-t border-slate-800 text-[11px] text-slate-500">
+          <div className="flex items-center gap-1">
+            <img src="/logo.png" alt="" className="h-3 w-3" />
+            <span className="font-semibold text-slate-400">L-BRACKET</span>
+          </div>
+          <span className="text-slate-600">|</span>
+          <span>Lose Once. Fight Again.</span>
+          <span className="text-slate-600">|</span>
+          <span>Crafted with ❤️ by Ikaf Ramadhan</span>
         </div>
       </div>
-    </div>
+    </>
   );
 }

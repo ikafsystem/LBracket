@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
+import { Footer } from '@/components/footer';
 import './globals.css';
 
 const geistSans = Geist({
@@ -44,6 +45,7 @@ export default function RootLayout({
       <body className="min-h-dvh bg-slate-900 text-slate-100">
         <div className="mx-auto max-w-lg min-h-dvh bg-slate-900 shadow-xl">
           {children}
+          <Footer />
         </div>
         <script
           dangerouslySetInnerHTML={{

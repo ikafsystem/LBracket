@@ -88,12 +88,12 @@ export default function CreateTournament() {
         <div className="flex items-center gap-3 pt-4">
           <button
             onClick={() => router.back()}
-            className="p-2 -ml-2 rounded-lg hover:bg-slate-800 transition-colors"
+            className="p-2 -ml-2 rounded-lg hover:bg-[#2557D6]/20 transition-colors"
           >
-            <ArrowLeft className="h-5 w-5" />
+            <ArrowLeft className="h-5 w-5 text-white" />
           </button>
           <div>
-            <h1 className="text-xl font-bold">New Tournament</h1>
+            <h1 className="text-xl font-bold text-white">New Tournament</h1>
             <p className="text-sm text-slate-400">Set up your bracket</p>
           </div>
         </div>
