@@ -17,6 +17,9 @@ export const metadata: Metadata = {
   title: 'L-Bracket',
   description: 'Lightweight double-elimination tournament manager',
   manifest: '/manifest.json',
+  icons: {
+    icon: '/favicon.png',
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',

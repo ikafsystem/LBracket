@@ -130,11 +130,12 @@ async function localCount(): Promise<number> {
 }
 
 export async function saveTournament(tournament: Tournament): Promise<void> {
-  const isNew = !tournament.adminToken;
-  if (isNew) {
-    tournament.adminToken = generateAdminToken();
-    setAdminToken(tournament.id, tournament.adminToken);
+  let token = getAdminToken(tournament.id);
+  if (!token) {
+    token = generateAdminToken();
+    setAdminToken(tournament.id, token);
   }
+  tournament.adminToken = token;
   if (isProduction()) {
     await apiSave(tournament);
   } else {
