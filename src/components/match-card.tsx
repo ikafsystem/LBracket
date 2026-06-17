@@ -9,13 +9,14 @@ interface MatchCardProps {
   match: Match;
   participants: Participant[];
   onComplete: (matchId: string, winnerId: string) => void;
+  className?: string;
+  feederLabels?: [string, string];
 }
 
-export function MatchCard({ match, participants, onComplete }: MatchCardProps) {
+export function MatchCard({ match, participants, onComplete, className, feederLabels }: MatchCardProps) {
   const [selectedWinner, setSelectedWinner] = useState<string | null>(null);
 
   if (match.bye) return null;
-  if (!match.participant1Id && !match.participant2Id && !match.completed) return null;
 
   const p1 = participants.find((p) => p.id === match.participant1Id);
   const p2 = participants.find((p) => p.id === match.participant2Id);
@@ -29,18 +30,22 @@ export function MatchCard({ match, participants, onComplete }: MatchCardProps) {
     onComplete(match.id, id);
   };
 
-  const participantSlot = (participant: Participant | undefined, won: boolean, side: 'top' | 'bottom') => {
-    const isActive = match.participant1Id !== null && match.participant2Id !== null;
+  const participantSlot = (participant: Participant | undefined, won: boolean, side: 'top' | 'bottom', feederLabel?: string) => {
     const isEmpty = !participant;
+
+    if (match.completed && isEmpty) return null;
+
+    const label = isEmpty && feederLabel ? feederLabel : (participant?.name ?? 'TBD');
+    const isPlaceholder = isEmpty && !!feederLabel;
 
     return (
       <button
         onClick={() => participant && handleSelect(participant.id)}
-        disabled={match.completed || isEmpty || !isActive}
+        disabled={match.completed || isEmpty}
         className={cn(
-          'w-full flex items-center gap-2 px-3 py-2.5 text-sm transition-all duration-150 rounded-md',
-          side === 'top' ? 'rounded-b-none' : 'rounded-t-none border-t',
-          !match.completed && isActive && !isEmpty
+          'w-full flex items-center gap-2 px-3 py-1.5 text-sm transition-all duration-150 rounded-md',
+          side === 'top' ? 'rounded-b-none' : 'rounded-t-none',
+          !match.completed && !isEmpty
             ? 'hover:bg-blue-50 cursor-pointer active:bg-blue-100'
             : '',
           match.completed && won
@@ -59,14 +64,22 @@ export function MatchCard({ match, participants, onComplete }: MatchCardProps) {
         {match.completed && !won && !isEmpty && (
           <span className="w-4 shrink-0" />
         )}
-        <span className={cn(
-          'truncate flex-1 text-left',
-          isEmpty && 'text-slate-300 italic'
-        )}>
-          {participant?.name ?? 'TBD'}
-        </span>
+        <div className="flex-1 min-w-0 text-left">
+          <span className={cn(
+            'truncate block leading-tight',
+            isEmpty && 'text-slate-300 italic',
+            isPlaceholder && 'text-[11px]'
+          )}>
+            {label}
+          </span>
+          {participant?.teamName && (
+            <span className="text-[10px] text-slate-400 truncate block leading-tight">
+              {participant.teamName}
+            </span>
+          )}
+        </div>
         {participant && (
-          <span className="text-xs text-slate-400">#{participant.seed}</span>
+          <span className="text-[10px] text-slate-400 shrink-0">#{participant.seed}</span>
         )}
       </button>
     );
@@ -74,15 +87,26 @@ export function MatchCard({ match, participants, onComplete }: MatchCardProps) {
 
   return (
     <div className={cn(
-      'rounded-lg border bg-white shadow-sm overflow-hidden',
-      !match.completed && match.participant1Id && match.participant2Id
-        ? 'border-slate-200'
-        : match.completed
-          ? 'border-blue-200'
-          : 'border-slate-100 bg-slate-50/50'
+      'rounded-lg border bg-white shadow-sm overflow-hidden min-w-[140px] border-slate-200',
+      match.completed && 'border-blue-200',
+      className
     )}>
-      {participantSlot(p1, p1Won, 'top')}
-      {participantSlot(p2, p2Won, 'bottom')}
+      {participantSlot(p1, p1Won, 'top', feederLabels?.[0])}
+      {match.label && (
+        <div className="flex items-center gap-1.5 px-1.5">
+          <hr className="flex-1 border-t border-slate-200" />
+          <span className={cn(
+            'text-[9px] font-semibold uppercase tracking-wider shrink-0',
+            match.bracket === 'play-in' && 'text-indigo-400',
+            match.bracket === 'grand-final' && 'text-amber-500',
+            match.bracket !== 'play-in' && match.bracket !== 'grand-final' && 'text-slate-400',
+          )}>
+            {match.label}
+          </span>
+          <hr className="flex-1 border-t border-slate-200" />
+        </div>
+      )}
+      {participantSlot(p2, p2Won, 'bottom', feederLabels?.[1])}
     </div>
   );
 }

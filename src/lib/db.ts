@@ -45,6 +45,8 @@ function migrate(t: Tournament): Tournament {
     ...t,
     losersToFind: t.losersToFind ?? 1,
     loserIds: t.loserIds ?? [],
+    tournamentType: (t as any).tournamentType ?? 'losers-bracket',
+    prize: (t as any).prize ?? undefined,
   };
 }
 

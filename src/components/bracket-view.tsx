@@ -25,18 +25,20 @@ export function BracketView({
   );
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {rounds.map((round, roundIdx) => {
         const roundMatches = matchesForBracket.filter(
           (m) => m.round === round
         );
-        const nonBye = roundMatches.filter((m) => !m.bye);
-        if (nonBye.length === 0) return null;
+        const activeMatches = roundMatches.filter(
+          (m) => !m.bye && (m.completed || m.participant1Id !== null || m.participant2Id !== null)
+        );
+        if (activeMatches.length === 0) return null;
 
         return (
-          <div key={round} className="space-y-2">
+          <div key={round}>
             {rounds.length > 1 && (
-              <div className="flex items-center gap-2 mb-1">
+              <div className="flex items-center gap-2 mb-3">
                 <div className="h-px flex-1 bg-slate-200" />
                 <span className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">
                   Round {round}
@@ -46,19 +48,18 @@ export function BracketView({
             )}
             <div
               className={cn(
-                'grid gap-2',
-                nonBye.length <= 2
-                  ? 'grid-cols-2'
-                  : 'grid-cols-2 lg:grid-cols-4'
+                'flex flex-wrap gap-3',
+                activeMatches.length === 1 && 'justify-center'
               )}
             >
-              {nonBye.map((match) => (
-                <MatchCard
-                  key={match.id}
-                  match={match}
-                  participants={tournament.participants}
-                  onComplete={onCompleteMatch}
-                />
+              {activeMatches.map((match) => (
+                <div key={match.id} className="min-w-0 flex-shrink-0">
+                  <MatchCard
+                    match={match}
+                    participants={tournament.participants}
+                    onComplete={onCompleteMatch}
+                  />
+                </div>
               ))}
             </div>
           </div>

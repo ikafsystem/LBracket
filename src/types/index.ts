@@ -1,10 +1,12 @@
 export type ParticipantStatus = 'undefeated' | 'lower-bracket' | 'eliminated';
-export type Bracket = 'winners' | 'losers';
+export type Bracket = 'winners' | 'losers' | 'upper' | 'lower' | 'grand-final' | 'play-in';
 export type TournamentStatus = 'pending' | 'active' | 'completed';
+export type TournamentType = 'losers-bracket' | 'winners-bracket';
 
 export interface Participant {
   id: string;
   name: string;
+  teamName?: string;
   seed: number;
   wins: number;
   losses: number;
@@ -25,6 +27,7 @@ export interface Match {
   loserNextMatchId: string | null;
   completed: boolean;
   bye: boolean;
+  label?: string;
 }
 
 export interface Tournament {
@@ -42,6 +45,8 @@ export interface Tournament {
   grandFinalMatchId: string | null;
   grandFinalResetMatchId: string | null;
   losersToFind: 1 | 2;
+  tournamentType: TournamentType;
+  prize?: string;
 }
 
 export interface TournamentSummary {

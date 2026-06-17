@@ -77,6 +77,8 @@ export default function ImportPage() {
       ...data,
       losersToFind: data.losersToFind ?? 1,
       loserIds: data.loserIds ?? [],
+      tournamentType: (data as any).tournamentType ?? 'losers-bracket',
+      prize: (data as any).prize ?? undefined,
       updatedAt: Date.now(),
     };
     await saveTournament(tournament);
