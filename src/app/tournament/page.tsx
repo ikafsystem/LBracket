@@ -21,6 +21,7 @@ import {
   ClipboardList,
   Download,
   Info,
+  Share,
 } from 'lucide-react';
 import type { Tournament } from '@/types';
 
@@ -39,9 +40,10 @@ function TournamentPage() {
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'winners' | 'losers'>('winners');
-  const [nextSuggestMode, setNextSuggestMode] = useState<'ub-first' | 'interleave'>('ub-first');
+  const [nextSuggestMode, setNextSuggestMode] = useState<'ub-first' | 'interleave'>('interleave');
   const [showInfoTooltip, setShowInfoTooltip] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem('nextSuggestMode') as 'ub-first' | 'interleave' | null;
@@ -61,6 +63,28 @@ function TournamentPage() {
       return next;
     });
   }, []);
+
+  const handleShare = useCallback(async () => {
+    const url = window.location.href;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: tournament?.name, url });
+      } catch {}
+    } else if (navigator.clipboard) {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } else {
+      const input = document.createElement('input');
+      input.value = url;
+      document.body.appendChild(input);
+      input.select();
+      document.execCommand('copy');
+      document.body.removeChild(input);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  }, [tournament?.name]);
 
   const loadTournament = useCallback(async () => {
     if (!id) {
@@ -190,6 +214,14 @@ function TournamentPage() {
               </p>
             )}
           </div>
+          <button
+            onClick={handleShare}
+            className="flex flex-col items-center p-2 rounded-lg hover:bg-[#2557D6]/20 transition-colors text-slate-400 hover:text-white"
+            title={copied ? 'Copied!' : 'Share / Copy Link'}
+          >
+            <Share className={`h-5 w-5 ${copied ? 'text-emerald-400' : ''}`} />
+            <span className="text-[8px] mt-0.5">{copied ? 'Copied' : 'Share'}</span>
+          </button>
         </div>
 
         <div className="grid grid-cols-4 gap-2">
