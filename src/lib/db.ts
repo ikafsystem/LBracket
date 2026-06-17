@@ -13,6 +13,24 @@ function getApiBase(): string {
   return window.location.origin;
 }
 
+function getAdminToken(tournamentId: string): string | null {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem(`admin_${tournamentId}`);
+}
+
+function setAdminToken(tournamentId: string, token: string): void {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(`admin_${tournamentId}`, token);
+}
+
+export function generateAdminToken(): string {
+  return Math.random().toString(36).slice(2, 18);
+}
+
+export function isTournamentAdmin(tournamentId: string): boolean {
+  return getAdminToken(tournamentId) !== null;
+}
+
 function migrate(t: Tournament): Tournament {
   return {
     ...t,
@@ -39,15 +57,23 @@ async function apiGet(id: string): Promise<Tournament | undefined> {
 }
 
 async function apiSave(tournament: Tournament): Promise<void> {
+  const token = getAdminToken(tournament.id);
   await fetch(`${getApiBase()}/api/tournaments`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Admin-Token': token || '',
+    },
     body: JSON.stringify(tournament),
   });
 }
 
 async function apiDelete(id: string): Promise<void> {
-  await fetch(`${getApiBase()}/api/tournaments/${id}`, { method: 'DELETE' });
+  const token = getAdminToken(id);
+  await fetch(`${getApiBase()}/api/tournaments/${id}`, {
+    method: 'DELETE',
+    headers: { 'X-Admin-Token': token || '' },
+  });
 }
 
 async function apiCount(): Promise<number> {
@@ -104,6 +130,11 @@ async function localCount(): Promise<number> {
 }
 
 export async function saveTournament(tournament: Tournament): Promise<void> {
+  const isNew = !tournament.adminToken;
+  if (isNew) {
+    tournament.adminToken = generateAdminToken();
+    setAdminToken(tournament.id, tournament.adminToken);
+  }
   if (isProduction()) {
     await apiSave(tournament);
   } else {

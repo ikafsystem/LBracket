@@ -47,6 +47,7 @@ export interface Tournament {
   losersToFind: 1 | 2;
   tournamentType: TournamentType;
   prize?: string;
+  adminToken?: string;
 }
 
 export interface TournamentSummary {

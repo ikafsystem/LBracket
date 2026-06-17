@@ -13,6 +13,7 @@ export async function onRequestGet(context: any) {
     }
 
     const tournament = JSON.parse(result.data as string);
+    delete tournament.adminToken;
 
     return new Response(JSON.stringify(tournament), {
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
@@ -31,6 +32,24 @@ export async function onRequestPut(context: any) {
 
   try {
     const tournament = await context.request.json();
+    const adminToken = context.request.headers.get('X-Admin-Token');
+
+    const existing = await db.prepare('SELECT data FROM tournaments WHERE id = ?').bind(id).first();
+
+    if (!existing) {
+      return new Response(JSON.stringify({ error: 'Tournament not found' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    const existingData = JSON.parse(existing.data as string);
+    if (!adminToken || existingData.adminToken !== adminToken) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 403,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
 
     await db.prepare(
       'INSERT OR REPLACE INTO tournaments (id, name, data, created_at, updated_at) VALUES (?, ?, ?, ?, ?)'
@@ -58,6 +77,25 @@ export async function onRequestDelete(context: any) {
   const id = context.params.id;
 
   try {
+    const adminToken = context.request.headers.get('X-Admin-Token');
+
+    const existing = await db.prepare('SELECT data FROM tournaments WHERE id = ?').bind(id).first();
+
+    if (!existing) {
+      return new Response(JSON.stringify({ error: 'Tournament not found' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    const existingData = JSON.parse(existing.data as string);
+    if (!adminToken || existingData.adminToken !== adminToken) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 403,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
     await db.prepare('DELETE FROM tournaments WHERE id = ?').bind(id).run();
 
     return new Response(JSON.stringify({ success: true }), {
@@ -76,7 +114,7 @@ export async function onRequestOptions() {
     headers: {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Token',
     },
   });
 }
