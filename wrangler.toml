@@ -2,3 +2,9 @@ name = "lbracket"
 pages_build_output_dir = "out"
 
 compatibility_date = "2024-12-01"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "lbracket-db"
+database_id = "3fe8ec60-d35b-40e5-ba5d-96b834abe0a8"

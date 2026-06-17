@@ -7,8 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "pages:build": "npx @cloudflare/next-on-pages",
-    "pages:deploy": "npx wrangler pages deploy .vercel/output/static --project-name lbracket"
+    "pages:build": "next build",
+    "pages:deploy": "npx wrangler pages deploy out --project-name lbracket"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",
@@ -21,6 +21,7 @@
     "tailwind-merge": "^3.6.0"
   },
   "devDependencies": {
+    "@cloudflare/next-on-pages": "^1.14.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^22",
     "@types/react": "^19",
