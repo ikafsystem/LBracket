@@ -52,6 +52,16 @@ export async function onRequestPost(context: any) {
       tournament.updatedAt
     ).run();
 
+    // Server-side max enforcement: delete oldest if over 3
+    const all = await db.prepare('SELECT id, data, created_at FROM tournaments ORDER BY created_at DESC').all();
+    const MAX = 3;
+    if (all.results.length > MAX) {
+      const toDelete = all.results.slice(MAX);
+      for (const row of toDelete) {
+        await db.prepare('DELETE FROM tournaments WHERE id = ?').bind(row.id).run();
+      }
+    }
+
     return new Response(JSON.stringify({ success: true }), {
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
     });

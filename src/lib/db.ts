@@ -58,7 +58,7 @@ async function apiGet(id: string): Promise<Tournament | undefined> {
 
 async function apiSave(tournament: Tournament): Promise<void> {
   const token = getAdminToken(tournament.id);
-  await fetch(`${getApiBase()}/api/tournaments`, {
+  const res = await fetch(`${getApiBase()}/api/tournaments`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -66,14 +66,16 @@ async function apiSave(tournament: Tournament): Promise<void> {
     },
     body: JSON.stringify(tournament),
   });
+  if (!res.ok) throw new Error(`Save failed: ${res.status}`);
 }
 
 async function apiDelete(id: string): Promise<void> {
   const token = getAdminToken(id);
-  await fetch(`${getApiBase()}/api/tournaments/${id}`, {
+  const res = await fetch(`${getApiBase()}/api/tournaments/${id}`, {
     method: 'DELETE',
     headers: { 'X-Admin-Token': token || '' },
   });
+  if (!res.ok) throw new Error(`Delete failed: ${res.status}`);
 }
 
 async function apiCount(): Promise<number> {
@@ -171,8 +173,12 @@ export async function enforceMaxTournaments(): Promise<string | null> {
   const tournaments = await getAllTournaments();
   if (tournaments.length >= MAX_TOURNAMENTS) {
     const oldest = tournaments[tournaments.length - 1];
-    await deleteTournament(oldest.id);
-    return oldest.name;
+    try {
+      await deleteTournament(oldest.id);
+      return oldest.name;
+    } catch {
+      return null;
+    }
   }
   return null;
 }

@@ -14,14 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { createTournament, createWinnersBracketTournament } from '@/lib/engine';
 import { saveTournament, enforceMaxTournaments, getAllTournaments } from '@/lib/db';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from '@/components/ui/dialog';
+
 import { ArrowLeft, Plus, Trash2, Shuffle, Trophy, ClipboardCopy, Image as ImageIcon, X } from 'lucide-react';
 import type { TournamentType } from '@/types';
 
@@ -42,8 +35,6 @@ export default function CreateTournament() {
   const [logo, setLogo] = useState<string | null>(null);
   const [randomSeeding, setRandomSeeding] = useState(true);
   const [losersToFind, setLosersToFind] = useState<1 | 2>(1);
-  const [showDeleteWarning, setShowDeleteWarning] = useState(false);
-  const [deletedName, setDeletedName] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
   const [recentTournaments, setRecentTournaments] = useState<{ id: string; name: string; participants: ParticipantEntry[] }[]>([]);
 
@@ -99,46 +90,44 @@ export default function CreateTournament() {
     if (!canCreate || !tournamentType) return;
     setCreating(true);
 
-    const deleted = await enforceMaxTournaments();
-    if (deleted) {
-      setDeletedName(deleted);
-      setShowDeleteWarning(true);
-      return;
-    }
-
+    await enforceMaxTournaments();
     await doCreate();
   };
 
   const doCreate = async () => {
     if (!tournamentType) return;
-    let tournament;
+    try {
+      let tournament;
 
-    if (isWb) {
-      tournament = createWinnersBracketTournament({
-        name: name.trim(),
-        participants: validParticipants.map(p => ({ name: p.name.trim(), teamName: p.teamName.trim() })),
-      });
-    } else {
-      tournament = createTournament({
-        name: name.trim(),
-        participants: validParticipants.map(p => p.name.trim()),
-        randomSeeding,
-        doubleElimination: true,
-        losersToFind,
-      });
-      tournament = {
-        ...tournament,
-        participants: tournament.participants.map((p, i) => ({
-          ...p,
-          teamName: validParticipants[i]?.teamName?.trim() || undefined,
-        })),
-      };
+      if (isWb) {
+        tournament = createWinnersBracketTournament({
+          name: name.trim(),
+          participants: validParticipants.map(p => ({ name: p.name.trim(), teamName: p.teamName.trim() })),
+        });
+      } else {
+        tournament = createTournament({
+          name: name.trim(),
+          participants: validParticipants.map(p => p.name.trim()),
+          randomSeeding,
+          doubleElimination: true,
+          losersToFind,
+        });
+        tournament = {
+          ...tournament,
+          participants: tournament.participants.map((p, i) => ({
+            ...p,
+            teamName: validParticipants[i]?.teamName?.trim() || undefined,
+          })),
+        };
+      }
+
+      tournament.prize = prize.trim() || undefined;
+      if (logo) tournament.logo = logo;
+      await saveTournament(tournament);
+      router.push(`/tournament?id=${tournament.id}`);
+    } catch {
+      setCreating(false);
     }
-
-    tournament.prize = prize.trim() || undefined;
-    if (logo) tournament.logo = logo;
-    await saveTournament(tournament);
-    router.push(`/tournament?id=${tournament.id}`);
   };
 
   if (step === 'choose') {
@@ -458,27 +447,7 @@ export default function CreateTournament() {
         Create {isWb ? 'Winner Bracket' : 'Losers Bracket'} Tournament
       </Button>
 
-      <Dialog open={showDeleteWarning} onOpenChange={setShowDeleteWarning}>
-        <DialogContent className="bg-slate-800 border-slate-700 text-white">
-          <DialogHeader>
-            <DialogTitle>Old Tournament Deleted</DialogTitle>
-            <DialogDescription className="text-slate-400">
-              Maximum 3 tournaments allowed. &ldquo;{deletedName}&rdquo; was deleted to make room.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              onClick={async () => {
-                setShowDeleteWarning(false);
-                await doCreate();
-              }}
-              className="w-full"
-            >
-              Continue
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+
     </div>
   );
 }
