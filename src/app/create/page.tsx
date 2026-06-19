@@ -84,7 +84,7 @@ export default function CreateTournament() {
   const canCreate =
     name.trim().length > 0 &&
     validParticipants.length >= 2 &&
-    validParticipants.length <= 20 &&
+    validParticipants.length <= 24 &&
     !creating;
 
   const handleCreate = async () => {
@@ -325,7 +325,7 @@ export default function CreateTournament() {
         <CardHeader>
           <CardTitle className="text-white">Participants</CardTitle>
           <CardDescription className="text-slate-400">
-            Add 2–20 participants with their team names
+            Add 2–24 participants with their team names
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -369,7 +369,7 @@ export default function CreateTournament() {
                 Shuffle
               </Button>
             )}
-            {participants.length < 20 && (
+            {participants.length < 24 && (
               <Button
                 variant="ghost"
                 onClick={addParticipant}

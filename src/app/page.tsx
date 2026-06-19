@@ -83,7 +83,7 @@ export default function Dashboard() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-white">L-BRACKET</h1>
           <p className="text-sm text-slate-400 mt-0.5">
-            WHOS GONNA BE LOSER FROM THE LOSERS.
+            WHO'S GONNA BE LOSER OF THE LOSERS!?
           </p>
         </div>
       </div>
@@ -154,7 +154,7 @@ export default function Dashboard() {
           <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wider">
             Your Tournaments
           </h2>
-          {tournaments.map((t) => (
+          {tournaments.slice(0, 5).map((t) => (
             <TournamentCard
               key={t.id}
               tournament={t}

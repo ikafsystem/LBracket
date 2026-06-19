@@ -67,7 +67,7 @@ function EliminatedPage() {
             <ArrowLeft className="h-5 w-5 text-white" />
           </button>
           <div>
-            <h1 className="text-lg font-bold">Eliminated</h1>
+            <h1 className="text-lg font-bold text-white">Eliminated</h1>
             <p className="text-xs text-slate-400">{tournament.name}</p>
           </div>
         </div>
@@ -85,7 +85,7 @@ function EliminatedPage() {
             <div key={p.id} className="p-4 flex items-center gap-3">
               <span className="text-sm font-mono text-slate-600 w-6">{i + 1}</span>
               <div className="flex-1 min-w-0">
-                <span className="font-medium">{p.name}</span>
+                <span className="font-medium text-white">{p.name}</span>
                 <div className="flex items-center gap-2 mt-0.5">
                   <span className="text-xs text-slate-500">
                     W: <span className="text-emerald-400">{p.wins}</span> L: <span className="text-red-400">{p.losses}</span>

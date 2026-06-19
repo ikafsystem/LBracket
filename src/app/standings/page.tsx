@@ -80,7 +80,7 @@ function StandingsPage() {
             <ArrowLeft className="h-5 w-5 text-white" />
           </button>
           <div>
-            <h1 className="text-lg font-bold">Standings</h1>
+            <h1 className="text-lg font-bold text-white">Standings</h1>
             <p className="text-xs text-slate-400">{tournament.name}</p>
           </div>
         </div>
@@ -96,7 +96,7 @@ function StandingsPage() {
                 <span className="text-sm font-mono text-slate-500 w-6">{i + 1}</span>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="font-medium truncate">{p.name}</span>
+                    <span className="font-medium truncate text-white">{p.name}</span>
                     <Badge variant={config.variant} className="shrink-0">
                       <Icon className="h-3 w-3 mr-1 inline" />
                       {config.label}

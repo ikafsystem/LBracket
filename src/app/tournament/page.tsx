@@ -25,6 +25,8 @@ import {
   Pencil,
   Play,
   X,
+  Minus,
+  Plus,
 } from 'lucide-react';
 import type { Tournament } from '@/types';
 
@@ -47,6 +49,7 @@ function TournamentPage() {
   const [showInfoTooltip, setShowInfoTooltip] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [zoom, setZoom] = useState(1);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editParticipants, setEditParticipants] = useState<{ id: string; name: string; teamName: string }[]>([]);
 
@@ -399,7 +402,7 @@ function TournamentPage() {
                   }`} />
                 </button>
                 <span className={`text-[10px] font-medium transition-colors ${nextSuggestMode === 'interleave' ? 'text-amber-300' : 'text-slate-500'}`}>
-                  Interleave
+                  UB+LB (Mix)
                 </span>
                 <div className="relative">
                   <button
@@ -415,11 +418,11 @@ function TournamentPage() {
                       <div className="text-[11px] text-slate-300 space-y-2">
                         <div>
                           <span className="font-bold text-emerald-400">UB First:</span>{' '}
-                          Selesaikan semua Upper Bracket round, lalu Lower Bracket. Lebih terstruktur tapi LB menunggu lama.
+                          Selesaikan semua Upper Bracket round sampe Grand Final. Lalu, Lower Bracket.
                         </div>
                         <div>
-                          <span className="font-bold text-amber-400">Interleave:</span>{' '}
-                          LB round yang sudah penuh participant-nya bisa dimainkan bersamaan UB. Lebih natural & cepat.
+                          <span className="font-bold text-amber-400">UB+LB (Mix):</span>{' '}
+                          Dilakukan bergantian. Upper Bracket melaju ke Next Round, Lalu, Lower Bracket.
                         </div>
                       </div>
                       <div className="absolute left-1/2 -translate-x-1/2 top-full w-2 h-2 bg-slate-800 border-r border-b border-slate-700 rotate-45 -mt-1" />
@@ -518,7 +521,7 @@ function TournamentPage() {
       )}
 
       {isDoubleElim ? (
-        <div className="flex-1 min-h-0 p-4">
+        <div className="flex-1 min-h-0 p-4" style={{ zoom } as any}>
           <DoubleEliminationBracket
             tournament={tournament}
             onCompleteMatch={handleCompleteMatch}
@@ -556,7 +559,7 @@ function TournamentPage() {
             </button>
           </div>
 
-          <div className="p-4 space-y-4">
+          <div className="p-4 space-y-4" style={{ zoom } as any}>
             <BracketView
               tournament={tournament}
               onCompleteMatch={handleCompleteMatch}
@@ -566,7 +569,6 @@ function TournamentPage() {
           </div>
         </>
       )}
-    </div>
 
     {showEditModal && (
       <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -659,6 +661,16 @@ function TournamentPage() {
         </div>
       </div>
     )}
+
+    </div>
+
+    <div className="fixed bottom-[5.25rem] left-0 right-0 max-w-lg mx-auto pointer-events-none z-10">
+      <div className="pointer-events-auto w-fit ml-2 flex flex-col items-center gap-1 p-1.5 rounded-xl bg-slate-900/80 border border-slate-700/50 backdrop-blur-sm">
+        <button onClick={() => setZoom(z => Math.max(0.25, +(z - 0.25).toFixed(2)))} className="p-1.5 rounded-lg hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"><Minus className="h-3.5 w-3.5" /></button>
+        <button onClick={() => setZoom(1)} className="px-1 py-0.5 rounded text-[10px] font-mono text-slate-400 hover:text-white hover:bg-slate-700 transition-colors text-center">{Math.round(zoom * 100)}%</button>
+        <button onClick={() => setZoom(z => Math.min(2, +(z + 0.25).toFixed(2)))} className="p-1.5 rounded-lg hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"><Plus className="h-3.5 w-3.5" /></button>
+      </div>
+    </div>
 
     <div className="fixed bottom-0 left-0 right-0 max-w-lg mx-auto bg-slate-900 border-t border-slate-800">
         <div className="flex">

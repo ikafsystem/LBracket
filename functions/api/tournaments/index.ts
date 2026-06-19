@@ -57,8 +57,8 @@ export async function onRequestPost(context: any) {
     // Server-side max enforcement: delete oldest if over 3
     try {
       const all = await db.prepare('SELECT id, created_at FROM tournaments ORDER BY created_at DESC').all();
-      if (all.results.length > 3) {
-        const toDelete = all.results.slice(3);
+      if (all.results.length > 5) {
+        const toDelete = all.results.slice(5);
         for (const row of toDelete) {
           await db.prepare('DELETE FROM tournaments WHERE id = ?').bind(row.id).run();
         }

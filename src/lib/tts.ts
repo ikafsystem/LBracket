@@ -1,8 +1,8 @@
 const phrasesFirstLoss = [
-  '{name} kok goblok banget bisa kalah!!',
+  '{name} kok pinter banget bisa kalah!!',
   'Ya Allah.. {name} kalah...',
   'aduh.. {name} kebanyakan makan MBG ya jadi kalah?',
-  'lah.. {name} kalah? bisa main ga sih!!?',
+  'waduh! {name} kalah? bisa main ga sih!!?',
   'mending {name} main sama kucing aja diluar ya',
 ];
 
