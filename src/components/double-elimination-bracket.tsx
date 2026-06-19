@@ -8,6 +8,7 @@ import { Trophy } from 'lucide-react';
 interface Props {
   tournament: Tournament;
   onCompleteMatch: (matchId: string, winnerId: string) => void;
+  disabled?: boolean;
 }
 
 const CARD_H = 64;
@@ -55,7 +56,7 @@ interface Pos {
   cy: number;
 }
 
-export function DoubleEliminationBracket({ tournament, onCompleteMatch }: Props) {
+export function DoubleEliminationBracket({ tournament, onCompleteMatch, disabled }: Props) {
   const piMatches = tournament.matches.filter(m => m.bracket === 'play-in');
   const ubMatches = tournament.matches.filter(m => m.bracket === 'upper');
   const lbMatches = tournament.matches.filter(m => m.bracket === 'lower');
@@ -314,6 +315,7 @@ export function DoubleEliminationBracket({ tournament, onCompleteMatch }: Props)
               match={pos.match}
               participants={tournament.participants}
               onComplete={onCompleteMatch}
+              disabled={disabled}
               feederLabels={feederLabels.get(pos.match.id)}
               className={pos.match.bracket === 'grand-final'
                 ? 'ring-2 ring-amber-400/60 border-amber-400'

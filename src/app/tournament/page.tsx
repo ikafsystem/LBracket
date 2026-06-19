@@ -22,6 +22,9 @@ import {
   Download,
   Info,
   Share,
+  Pencil,
+  Play,
+  X,
 } from 'lucide-react';
 import type { Tournament } from '@/types';
 
@@ -44,6 +47,8 @@ function TournamentPage() {
   const [showInfoTooltip, setShowInfoTooltip] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editParticipants, setEditParticipants] = useState<{ id: string; name: string; teamName: string }[]>([]);
 
   useEffect(() => {
     const saved = localStorage.getItem('nextSuggestMode') as 'ub-first' | 'interleave' | null;
@@ -85,6 +90,36 @@ function TournamentPage() {
       setTimeout(() => setCopied(false), 2000);
     }
   }, [tournament?.name]);
+
+  const openEditModal = useCallback(() => {
+    if (!tournament) return;
+    setEditParticipants(
+      tournament.participants.map(p => ({ id: p.id, name: p.name, teamName: p.teamName || '' }))
+    );
+    setShowEditModal(true);
+  }, [tournament]);
+
+  const handleSaveEdit = useCallback(async () => {
+    if (!tournament) return;
+    const updated = {
+      ...tournament,
+      participants: tournament.participants.map(p => {
+        const e = editParticipants.find(ep => ep.id === p.id);
+        return e ? { ...p, name: e.name.trim() || p.name, teamName: e.teamName.trim() || undefined } : p;
+      }),
+      updatedAt: Date.now(),
+    };
+    setTournament(updated);
+    await saveTournament(updated);
+    setShowEditModal(false);
+  }, [tournament, editParticipants]);
+
+  const handleStartTournament = useCallback(async () => {
+    if (!tournament) return;
+    const updated = { ...tournament, status: 'active' as const, updatedAt: Date.now() };
+    setTournament(updated);
+    await saveTournament(updated);
+  }, [tournament]);
 
   const loadTournament = useCallback(async () => {
     if (!id) {
@@ -192,6 +227,11 @@ function TournamentPage() {
           >
             <ArrowLeft className="h-5 w-5 text-white" />
           </button>
+          <img
+            src={tournament.logo || '/logo.png'}
+            alt=""
+            className="h-10 w-10 rounded-lg object-cover shrink-0"
+          />
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <h1 className="text-lg font-bold truncate text-white">
@@ -251,7 +291,7 @@ function TournamentPage() {
         </div>
       </div>
 
-      {isDoubleElim && (() => {
+      {isDoubleElim && tournament.status !== 'pending' && (() => {
           const playable = tournament.matches.filter(m =>
             !m.completed && !m.bye &&
             (m.participant1Id !== null || m.participant2Id !== null)
@@ -456,11 +496,31 @@ function TournamentPage() {
            </div>
          )}
 
+      {tournament.status === 'pending' && (
+        <div className="p-4 flex gap-2">
+          <button
+            onClick={openEditModal}
+            className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-white text-sm font-medium transition-colors"
+          >
+            <Pencil className="h-4 w-4" />
+            Edit
+          </button>
+          <button
+            onClick={handleStartTournament}
+            className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium transition-colors"
+          >
+            <Play className="h-4 w-4" />
+            Start Tournament
+          </button>
+        </div>
+      )}
+
       {isDoubleElim ? (
         <div className="flex-1 min-h-0 p-4">
           <DoubleEliminationBracket
             tournament={tournament}
             onCompleteMatch={handleCompleteMatch}
+            disabled={tournament.status === 'pending'}
           />
         </div>
       ) : (
@@ -499,11 +559,98 @@ function TournamentPage() {
               tournament={tournament}
               onCompleteMatch={handleCompleteMatch}
               bracket={activeTab}
+              disabled={tournament.status === 'pending'}
             />
           </div>
         </>
       )}
     </div>
+
+    {showEditModal && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 bg-black/60" onClick={() => setShowEditModal(false)} />
+        <div className="relative z-50 w-full max-w-md mx-4 max-h-[80vh] overflow-y-auto rounded-xl bg-slate-900 border border-slate-700 shadow-2xl p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-bold text-white">Edit Participants</h2>
+            <button onClick={() => setShowEditModal(false)} className="p-1 rounded-lg hover:bg-slate-700 text-slate-400">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+          <div className="space-y-4">
+            {(() => {
+              const matchesWithParticipants = tournament.matches.filter(m =>
+                !m.bye && (m.participant1Id || m.participant2Id)
+              );
+              let num = 0;
+              return matchesWithParticipants.map(m => {
+                const p1 = tournament.participants.find(p => p.id === m.participant1Id);
+                const p2 = tournament.participants.find(p => p.id === m.participant2Id);
+                const e1 = editParticipants.find(ep => ep.id === p1?.id);
+                const e2 = editParticipants.find(ep => ep.id === p2?.id);
+                const n1 = ++num;
+                const n2 = ++num;
+                return (
+                  <div key={m.id} className="rounded-lg bg-slate-800 border border-slate-700 p-3">
+                    <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-2">{m.label || `Match R${m.round}P${m.position}`}</div>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <span className="w-5 text-center text-xs font-mono text-slate-400 shrink-0">{n1}</span>
+                        <input
+                          value={e1?.name ?? ''}
+                          onChange={e => setEditParticipants(prev => prev.map(ep => ep.id === p1?.id ? { ...ep, name: e.target.value } : ep))}
+                          placeholder="Name"
+                          className="flex-1 bg-slate-700 border border-slate-600 rounded-md px-2.5 py-1.5 text-sm text-white placeholder:text-slate-500 outline-none focus:border-blue-500"
+                          maxLength={30}
+                        />
+                        <input
+                          value={e1?.teamName ?? ''}
+                          onChange={e => setEditParticipants(prev => prev.map(ep => ep.id === p1?.id ? { ...ep, teamName: e.target.value } : ep))}
+                          placeholder="Team"
+                          className="w-20 bg-slate-700 border border-slate-600 rounded-md px-2.5 py-1.5 text-sm text-white placeholder:text-slate-500 outline-none focus:border-blue-500"
+                          maxLength={30}
+                        />
+                      </div>
+                      <div className="text-xs text-slate-500 text-center">vs</div>
+                      <div className="flex items-center gap-2">
+                        <span className="w-5 text-center text-xs font-mono text-slate-400 shrink-0">{n2}</span>
+                        <input
+                          value={e2?.name ?? ''}
+                          onChange={e => setEditParticipants(prev => prev.map(ep => ep.id === p2?.id ? { ...ep, name: e.target.value } : ep))}
+                          placeholder="Name"
+                          className="flex-1 bg-slate-700 border border-slate-600 rounded-md px-2.5 py-1.5 text-sm text-white placeholder:text-slate-500 outline-none focus:border-blue-500"
+                          maxLength={30}
+                        />
+                        <input
+                          value={e2?.teamName ?? ''}
+                          onChange={e => setEditParticipants(prev => prev.map(ep => ep.id === p2?.id ? { ...ep, teamName: e.target.value } : ep))}
+                          placeholder="Team"
+                          className="w-20 bg-slate-700 border border-slate-600 rounded-md px-2.5 py-1.5 text-sm text-white placeholder:text-slate-500 outline-none focus:border-blue-500"
+                          maxLength={30}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                );
+              });
+            })()}
+          </div>
+          <div className="flex gap-2 mt-4">
+            <button
+              onClick={() => setShowEditModal(false)}
+              className="flex-1 py-2.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-white text-sm font-medium transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSaveEdit}
+              className="flex-1 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium transition-colors"
+            >
+              Save Changes
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
 
     <div className="fixed bottom-0 left-0 right-0 max-w-lg mx-auto bg-slate-900 border-t border-slate-800">
         <div className="flex">

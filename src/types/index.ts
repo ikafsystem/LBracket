@@ -48,6 +48,7 @@ export interface Tournament {
   tournamentType: TournamentType;
   prize?: string;
   adminToken?: string;
+  logo?: string;
 }
 
 export interface TournamentSummary {
@@ -59,6 +60,7 @@ export interface TournamentSummary {
   lowerBracketCount: number;
   eliminatedCount: number;
   createdAt: number;
+  logo?: string;
 }
 
 export interface TournamentStore {

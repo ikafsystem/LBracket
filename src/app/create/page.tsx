@@ -22,7 +22,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { ArrowLeft, Plus, Trash2, Shuffle, Trophy, ClipboardCopy } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Shuffle, Trophy, ClipboardCopy, Image as ImageIcon, X } from 'lucide-react';
 import type { TournamentType } from '@/types';
 
 interface ParticipantEntry {
@@ -39,6 +39,7 @@ export default function CreateTournament() {
     Array.from({ length: 5 }, () => ({ name: '', teamName: '' }))
   );
   const [prize, setPrize] = useState('');
+  const [logo, setLogo] = useState<string | null>(null);
   const [randomSeeding, setRandomSeeding] = useState(true);
   const [losersToFind, setLosersToFind] = useState<1 | 2>(1);
   const [showDeleteWarning, setShowDeleteWarning] = useState(false);
@@ -135,6 +136,7 @@ export default function CreateTournament() {
     }
 
     tournament.prize = prize.trim() || undefined;
+    if (logo) tournament.logo = logo;
     await saveTournament(tournament);
     router.push(`/tournament?id=${tournament.id}`);
   };
@@ -227,21 +229,61 @@ export default function CreateTournament() {
         </CardContent>
       </Card>
 
-      <Card className="bg-slate-800 border-slate-700">
-        <CardHeader>
-          <CardTitle className="text-white">Prize / Hadiah</CardTitle>
-          <CardDescription className="text-slate-400">Optional prize for the champion</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Input
-            placeholder="e.g. Rp 500,000"
-            value={prize}
-            onChange={(e) => setPrize(e.target.value)}
-            className="bg-slate-700 border-slate-600 text-white placeholder:text-slate-500"
-            maxLength={100}
-          />
-        </CardContent>
-      </Card>
+      <div className="grid grid-cols-2 gap-3">
+        <Card className="bg-slate-800 border-slate-700">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-white text-sm">Prize / Hadiah</CardTitle>
+            <CardDescription className="text-slate-400 text-[10px]">Optional prize</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Input
+              placeholder="e.g. Rp 500,000"
+              value={prize}
+              onChange={(e) => setPrize(e.target.value)}
+              className="bg-slate-700 border-slate-600 text-white placeholder:text-slate-500"
+              maxLength={100}
+            />
+          </CardContent>
+        </Card>
+
+        <Card className="bg-slate-800 border-slate-700">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-white text-sm">Tournament Logo</CardTitle>
+            <CardDescription className="text-slate-400 text-[10px]">Optional square logo</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {logo ? (
+              <div className="relative inline-block">
+                <img src={logo} alt="Tournament logo" className="h-16 w-16 rounded-lg object-cover border border-slate-600" />
+                <button
+                  onClick={() => setLogo(null)}
+                  className="absolute -top-2 -right-2 p-1 rounded-full bg-red-500 text-white hover:bg-red-600 transition-colors"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+            ) : (
+              <label className="flex flex-col items-center justify-center h-16 rounded-lg border-2 border-dashed border-slate-600 hover:border-blue-500 cursor-pointer transition-colors">
+                <ImageIcon className="h-5 w-5 text-slate-400 mb-0.5" />
+                <span className="text-[10px] text-slate-400">Upload Logo</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onload = (ev) => setLogo(ev.target?.result as string);
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                />
+              </label>
+            )}
+          </CardContent>
+        </Card>
+      </div>
 
       {recentTournaments.length > 0 && (
         <Card className="bg-slate-800 border-slate-700">

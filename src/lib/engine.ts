@@ -29,7 +29,7 @@ export function createWinnersBracketTournament(p: { name: string; participants: 
 }
 
 function mt(name: string, p: Participant[], m: Match[], lt: 1 | 2, tt: Tournament['tournamentType']): Tournament {
-  return { id: generateId(), name, participants: p, matches: m, currentRound: 1, status: 'active', createdAt: Date.now(), updatedAt: Date.now(), championId: null, secondPlaceId: null, loserIds: [], grandFinalMatchId: null, grandFinalResetMatchId: null, losersToFind: lt, tournamentType: tt };
+  return { id: generateId(), name, participants: p, matches: m, currentRound: 1, status: 'pending', createdAt: Date.now(), updatedAt: Date.now(), championId: null, secondPlaceId: null, loserIds: [], grandFinalMatchId: null, grandFinalResetMatchId: null, losersToFind: lt, tournamentType: tt };
 }
 
 // ─── OLD BRACKET ───

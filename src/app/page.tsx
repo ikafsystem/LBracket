@@ -39,6 +39,7 @@ export default function Dashboard() {
           (p) => p.status === 'eliminated'
         ).length,
         createdAt: t.createdAt,
+        logo: t.logo,
       }));
       setTournaments(summaries);
     } catch {

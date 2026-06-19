@@ -11,9 +11,10 @@ interface MatchCardProps {
   onComplete: (matchId: string, winnerId: string) => void;
   className?: string;
   feederLabels?: [string, string];
+  disabled?: boolean;
 }
 
-export function MatchCard({ match, participants, onComplete, className, feederLabels }: MatchCardProps) {
+export function MatchCard({ match, participants, onComplete, className, feederLabels, disabled }: MatchCardProps) {
   const [selectedWinner, setSelectedWinner] = useState<string | null>(null);
 
   if (match.bye) return null;
@@ -40,12 +41,12 @@ export function MatchCard({ match, participants, onComplete, className, feederLa
 
     return (
       <button
-        onClick={() => participant && handleSelect(participant.id)}
-        disabled={match.completed || isEmpty}
+        onClick={() => participant && !disabled && handleSelect(participant.id)}
+        disabled={match.completed || isEmpty || disabled}
         className={cn(
           'w-full flex items-center gap-2 px-3 py-1.5 text-sm transition-all duration-150 rounded-md',
           side === 'top' ? 'rounded-b-none' : 'rounded-t-none',
-          !match.completed && !isEmpty
+          !match.completed && !isEmpty && !disabled
             ? 'hover:bg-blue-50 cursor-pointer active:bg-blue-100'
             : '',
           match.completed && won
@@ -53,7 +54,7 @@ export function MatchCard({ match, participants, onComplete, className, feederLa
             : match.completed && !won && !isEmpty
               ? 'bg-slate-50 text-slate-400'
               : '',
-          !match.completed && selectedWinner === participant?.id
+          !match.completed && !disabled && selectedWinner === participant?.id
             ? 'bg-blue-50 ring-1 ring-blue-300'
             : ''
         )}

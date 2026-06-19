@@ -9,12 +9,14 @@ interface BracketViewProps {
   tournament: Tournament;
   onCompleteMatch: (matchId: string, winnerId: string) => void;
   bracket: 'winners' | 'losers';
+  disabled?: boolean;
 }
 
 export function BracketView({
   tournament,
   onCompleteMatch,
   bracket,
+  disabled,
 }: BracketViewProps) {
   const rounds = getRounds(tournament.matches, bracket);
 
@@ -58,6 +60,7 @@ export function BracketView({
                     match={match}
                     participants={tournament.participants}
                     onComplete={onCompleteMatch}
+                    disabled={disabled}
                   />
                 </div>
               ))}
