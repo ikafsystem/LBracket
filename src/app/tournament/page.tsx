@@ -70,7 +70,9 @@ function TournamentPage() {
   }, []);
 
   const handleShare = useCallback(async () => {
-    const url = window.location.href;
+    const url = tournament
+      ? `${window.location.origin}/share/${tournament.id}`
+      : window.location.href;
     if (navigator.share) {
       try {
         await navigator.share({ title: tournament?.name, url });
@@ -89,7 +91,7 @@ function TournamentPage() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
-  }, [tournament?.name]);
+  }, [tournament]);
 
   const openEditModal = useCallback(() => {
     if (!tournament) return;
