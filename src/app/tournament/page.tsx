@@ -589,45 +589,51 @@ function TournamentPage() {
                 const p2 = tournament.participants.find(p => p.id === m.participant2Id);
                 const e1 = editParticipants.find(ep => ep.id === p1?.id);
                 const e2 = editParticipants.find(ep => ep.id === p2?.id);
-                const n1 = ++num;
-                const n2 = ++num;
+                const hasP1 = !!p1;
+                const hasP2 = !!p2;
+                const n1 = hasP1 ? ++num : null;
+                const n2 = hasP2 ? ++num : null;
                 return (
                   <div key={m.id} className="rounded-lg bg-slate-800 border border-slate-700 p-3">
                     <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-2">{m.label || `Match R${m.round}P${m.position}`}</div>
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
-                        <span className="w-5 text-center text-xs font-mono text-slate-400 shrink-0">{n1}</span>
+                        {n1 !== null ? <span className="w-5 text-center text-xs font-mono text-slate-400 shrink-0">{n1}</span> : <span className="w-5 shrink-0" />}
                         <input
                           value={e1?.name ?? ''}
                           onChange={e => setEditParticipants(prev => prev.map(ep => ep.id === p1?.id ? { ...ep, name: e.target.value } : ep))}
-                          placeholder="Name"
+                          placeholder={hasP1 ? 'Name' : 'TBD'}
                           className="flex-1 bg-slate-700 border border-slate-600 rounded-md px-2.5 py-1.5 text-sm text-white placeholder:text-slate-500 outline-none focus:border-blue-500"
                           maxLength={30}
+                          disabled={!hasP1}
                         />
                         <input
                           value={e1?.teamName ?? ''}
                           onChange={e => setEditParticipants(prev => prev.map(ep => ep.id === p1?.id ? { ...ep, teamName: e.target.value } : ep))}
                           placeholder="Team"
-                          className="w-20 bg-slate-700 border border-slate-600 rounded-md px-2.5 py-1.5 text-sm text-white placeholder:text-slate-500 outline-none focus:border-blue-500"
+                          className="w-20 bg-slate-700 border border-slate-600 rounded-md px-2.5 py-1.5 text-sm text-white placeholder:text-slate-500 outline-none focus:border-blue-500 disabled:opacity-30"
                           maxLength={30}
+                          disabled={!hasP1}
                         />
                       </div>
                       <div className="text-xs text-slate-500 text-center">vs</div>
                       <div className="flex items-center gap-2">
-                        <span className="w-5 text-center text-xs font-mono text-slate-400 shrink-0">{n2}</span>
+                        {n2 !== null ? <span className="w-5 text-center text-xs font-mono text-slate-400 shrink-0">{n2}</span> : <span className="w-5 shrink-0" />}
                         <input
                           value={e2?.name ?? ''}
                           onChange={e => setEditParticipants(prev => prev.map(ep => ep.id === p2?.id ? { ...ep, name: e.target.value } : ep))}
-                          placeholder="Name"
+                          placeholder={hasP2 ? 'Name' : 'TBD'}
                           className="flex-1 bg-slate-700 border border-slate-600 rounded-md px-2.5 py-1.5 text-sm text-white placeholder:text-slate-500 outline-none focus:border-blue-500"
                           maxLength={30}
+                          disabled={!hasP2}
                         />
                         <input
                           value={e2?.teamName ?? ''}
                           onChange={e => setEditParticipants(prev => prev.map(ep => ep.id === p2?.id ? { ...ep, teamName: e.target.value } : ep))}
                           placeholder="Team"
-                          className="w-20 bg-slate-700 border border-slate-600 rounded-md px-2.5 py-1.5 text-sm text-white placeholder:text-slate-500 outline-none focus:border-blue-500"
+                          className="w-20 bg-slate-700 border border-slate-600 rounded-md px-2.5 py-1.5 text-sm text-white placeholder:text-slate-500 outline-none focus:border-blue-500 disabled:opacity-30"
                           maxLength={30}
+                          disabled={!hasP2}
                         />
                       </div>
                     </div>

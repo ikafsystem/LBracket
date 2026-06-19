@@ -66,7 +66,10 @@ async function apiSave(tournament: Tournament): Promise<void> {
     },
     body: JSON.stringify(tournament),
   });
-  if (!res.ok) throw new Error(`Save failed: ${res.status}`);
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`Save failed: ${res.status} ${body}`);
+  }
 }
 
 async function apiDelete(id: string): Promise<void> {
@@ -170,16 +173,7 @@ export async function deleteTournament(id: string): Promise<void> {
 }
 
 export async function enforceMaxTournaments(): Promise<string | null> {
-  const tournaments = await getAllTournaments();
-  if (tournaments.length >= MAX_TOURNAMENTS) {
-    const oldest = tournaments[tournaments.length - 1];
-    try {
-      await deleteTournament(oldest.id);
-      return oldest.name;
-    } catch {
-      return null;
-    }
-  }
+  // Server handles max enforcement on POST. Client-side best-effort only.
   return null;
 }
 

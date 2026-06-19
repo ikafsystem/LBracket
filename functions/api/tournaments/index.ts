@@ -42,31 +42,36 @@ export async function onRequestPost(context: any) {
       }
     }
 
+    // Insert tournament data
+    const dataStr = JSON.stringify(tournament);
     await db.prepare(
       'INSERT OR REPLACE INTO tournaments (id, name, data, created_at, updated_at) VALUES (?, ?, ?, ?, ?)'
     ).bind(
       tournament.id,
       tournament.name,
-      JSON.stringify(tournament),
+      dataStr,
       tournament.createdAt,
       tournament.updatedAt
     ).run();
 
     // Server-side max enforcement: delete oldest if over 3
-    const all = await db.prepare('SELECT id, data, created_at FROM tournaments ORDER BY created_at DESC').all();
-    const MAX = 3;
-    if (all.results.length > MAX) {
-      const toDelete = all.results.slice(MAX);
-      for (const row of toDelete) {
-        await db.prepare('DELETE FROM tournaments WHERE id = ?').bind(row.id).run();
+    try {
+      const all = await db.prepare('SELECT id, created_at FROM tournaments ORDER BY created_at DESC').all();
+      if (all.results.length > 3) {
+        const toDelete = all.results.slice(3);
+        for (const row of toDelete) {
+          await db.prepare('DELETE FROM tournaments WHERE id = ?').bind(row.id).run();
+        }
       }
+    } catch {
+      // non-critical cleanup, ignore errors
     }
 
     return new Response(JSON.stringify({ success: true }), {
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
     });
-  } catch (error) {
-    return new Response(JSON.stringify({ error: 'Failed to save tournament' }), {
+  } catch (error: any) {
+    return new Response(JSON.stringify({ error: 'Failed to save tournament', detail: error?.message || String(error) }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });

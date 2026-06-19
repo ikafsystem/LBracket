@@ -36,6 +36,7 @@ export default function CreateTournament() {
   const [randomSeeding, setRandomSeeding] = useState(true);
   const [losersToFind, setLosersToFind] = useState<1 | 2>(1);
   const [creating, setCreating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [recentTournaments, setRecentTournaments] = useState<{ id: string; name: string; participants: ParticipantEntry[] }[]>([]);
 
   useEffect(() => {
@@ -125,7 +126,8 @@ export default function CreateTournament() {
       if (logo) tournament.logo = logo;
       await saveTournament(tournament);
       router.push(`/tournament?id=${tournament.id}`);
-    } catch {
+    } catch (e: any) {
+      setError(e?.message || 'Failed to create tournament');
       setCreating(false);
     }
   };
@@ -262,9 +264,22 @@ export default function CreateTournament() {
                   onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (file) {
-                      const reader = new FileReader();
-                      reader.onload = (ev) => setLogo(ev.target?.result as string);
-                      reader.readAsDataURL(file);
+                      const img = new Image();
+                      img.onload = () => {
+                        let w = img.width, h = img.height;
+                        const max = 256;
+                        if (w > max || h > max) {
+                          const ratio = Math.min(max / w, max / h);
+                          w = Math.round(w * ratio);
+                          h = Math.round(h * ratio);
+                        }
+                        const c = document.createElement('canvas');
+                        c.width = w; c.height = h;
+                        const ctx = c.getContext('2d')!;
+                        ctx.drawImage(img, 0, 0, w, h);
+                        setLogo(c.toDataURL('image/jpeg', 0.7));
+                      };
+                      img.src = URL.createObjectURL(file);
                     }
                   }}
                 />
@@ -447,6 +462,11 @@ export default function CreateTournament() {
         Create {isWb ? 'Winner Bracket' : 'Losers Bracket'} Tournament
       </Button>
 
+      {error && (
+        <div className="p-3 rounded-lg bg-red-900/30 border border-red-800 text-sm text-red-300 text-center">
+          {error}
+        </div>
+      )}
 
     </div>
   );
